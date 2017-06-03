@@ -1,0 +1,71 @@
+#!/bin/bash
+
+if [ "${1}" == "" ]
+then
+    echo 'Usage: ./station.bsh <ssid> <pswd>'
+    exit
+fi
+ssid=${1}
+
+if [ "${2}" == "" ]
+then
+    echo 'Usage: ./station.bsh <ssid> <pswd>'
+    exit
+fi
+pswd=${2}
+
+user=`whoami`
+log='/tmp/station-log.log'
+if [ "$user" != "root" ]
+then
+    echo 'Sorry, this shell script must be run as root; perhaps you meant to use "sudo"?'
+    exit
+fi
+
+#echo "Seems you're allowed in!"
+echo ""
+echo "Using SSID: ${ssid}"
+echo "Using PSWD: ${pswd}"
+
+echo `whoami` > ${log}
+echo "SSID: ${ssid}" >> ${log}
+echo "PASSWORD: ${pswd}" >> ${log}
+
+echo "before: dnsmasq service status: " $(service dnsmasq status) >> ${log}
+echo "before: hostapd service status: " $(service hostapd status) >> ${log}
+service dnsmasq stop
+update-rc.d dnsmasq disable
+service hostapd stop
+update-rc.d hostapd disable
+echo "after: dnsmasq service status: " $(service dnsmasq status) >> ${log}
+echo "after: hostapd service status: " $(service hostapd status) >> ${log}
+
+cat /home/pi/provision/etc/wpa_supplicant.station.conf | \
+    sed "s/<SSID>/${ssid}/g" | \
+    sed "s/<PSWD>/${pswd}/g" > /tmp/wpa_supplicant.conf
+echo "created new wpa_supplicant.conf file" >> ${log}
+
+cp /tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+echo "cp-ed wpa_supplicant.conf file" >> ${log}
+
+cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
+echo "cp-ed interfaces.station to interfaces" >> ${log}
+
+ifdown wlan0
+service dhcpcd stop
+echo "wlan0 down" >> ${log}
+
+cp /home/pi/provision/etc/dhcpcd.station /etc/dhcpcd.conf
+echo "cp-ed dhcpcd.station to dhcpcd.conf" >> ${log}
+
+sleep 4
+echo "sleeping for 4s" >> ${log}
+service dhcpcd force-reload
+service dhcpcd start
+
+ifup wlan0
+echo "wlan0 up" >> ${log}
+
+
+
+sleep 5

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+log='/tmp/ap-log.log'
+user=`whoami`
+if [ "$user" != "root" ]
+then
+    echo 'Sorry, this shell script must be run as root; perhaps you meant to use "sudo"?'
+    exit
+fi
+
+#echo "Seems you're allowed in!"
+echo ""
+
+echo `whoami` > /tmp/ap-log.log
+
+
+ifdown wlan0
+echo "wlan0 down" >> ${log}
+
+echo "before: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+service dhcpcd stop
+update-rc.d dhcpcd disable
+echo "after: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+
+cp /home/pi/provision/etc/dhcpcd.ap /etc/dhcpcd.conf
+echo "cp-ed dhcpcd.ap to dhcpcd.conf" >> ${log}
+
+cp /home/pi/provision/etc/wpa_supplicant.ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
+echo "cp-ed wpa_supplicant.ap.conf to wpa_supplicant.conf" >> ${log}
+
+cp /home/pi/provision/etc/interfaces.ap /etc/network/interfaces
+echo "cp-ed interfaces.ap to interfaces" >> ${log}
+
+echo "before: dnsmasq service status: " $(service dnsmasq status) >> ${log}
+update-rc.d dnsmasq enable
+service dnsmasq force-reload
+service dnsmasq start
+echo "after: dnsmasq service status: " $(service dnsmasq status) >> ${log}
+
+echo "before: hostapd service status: " $(service hostapd status) >> ${log}
+update-rc.d hostapd enable
+service hostapd force-reload
+service hostapd start
+echo "after: hostapd service status: " $(service hostapd status) >> ${log}
+
+
+

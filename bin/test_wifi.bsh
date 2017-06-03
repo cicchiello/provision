@@ -1,0 +1,43 @@
+#!/bin/bash
+
+echo `whoami` > /tmp/log.log
+echo "SSID: ${1}" >> /tmp/log.log
+echo "PASSWORD: ${2}" >> /tmp/log.log
+
+echo "before: dnsmasq service status: " $(service dnsmasq status) >> /tmp/log.log
+echo "before: hostapd service status: " $(service hostapd status) >> /tmp/log.log
+service dnsmasq stop
+service update-rc.d dnsmasq disable
+service hostapd stop
+service update-rc.d hostapd disable
+echo "after: dnsmasq service status: " $(service dnsmasq status) >> /tmp/log.log
+echo "after: hostapd service status: " $(service hostapd status) >> /tmp/log.log
+
+cat /home/pi/provision/etc/wpa_supplicant_template.txt | \
+    sed "s/<SSID>/${1}/g" | \
+    sed "s/<PSWD>/${2}/g" > /tmp/wpa_supplicant.conf
+echo "created new wpa_supplicant.conf file" >> /tmp/log.log
+
+cp /tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+echo "cp-ed wpa_supplicant.conf file" >> /tmp/log.log
+
+cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
+echo "cp-ed interfaces.station to interfaces" >> /tmp/log.log
+
+ifdown wlan0
+service dhcpcd stop
+echo "wlan0 down" >> /tmp/log.log
+
+cp /home/pi/provision/etc/dhcpcd.station /etc/dhcpcd.conf
+echo "cp-ed dhcpcd.station to dhcpcd.conf" >> /tmp/log.log
+
+sleep 4
+echo "sleeping for 4s" >> /tmp/log.log
+service dhcpcd start
+
+ifup wlan0
+echo "wlan0 up" >> /tmp/log.log
+
+
+
+sleep 5
