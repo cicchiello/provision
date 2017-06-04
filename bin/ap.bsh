@@ -17,13 +17,21 @@ echo `whoami` > /tmp/ap-log.log
 ifdown wlan0
 echo "wlan0 down" >> ${log}
 
-echo "before: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+echo "before stopping dhcpcd service status: " $(service dhcpcd status) >> ${log}
 service dhcpcd stop
-update-rc.d dhcpcd disable
-echo "after: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+#update-rc.d dhcpcd disable
+#echo "after: dhcpcd service status: " $(service dhcpcd status) >> ${log}
 
 cp /home/pi/provision/etc/dhcpcd.ap /etc/dhcpcd.conf
 echo "cp-ed dhcpcd.ap to dhcpcd.conf" >> ${log}
+
+service dhcpcd force-reload
+service dhcpcd start
+systemctl daemon-reload
+
+echo "Exiting early"
+exit -1
+echo "!?!? Didn't exit early"
 
 cp /home/pi/provision/etc/wpa_supplicant.ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
 echo "cp-ed wpa_supplicant.ap.conf to wpa_supplicant.conf" >> ${log}

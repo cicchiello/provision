@@ -1,0 +1,29 @@
+#!/bin/bash
+
+user=`whoami`
+if [ "$user" != "root" ]
+then
+    echo 'Sorry, this shell script must be run as root; perhaps you meant to use "sudo"?'
+    exit
+fi
+
+log='/tmp/station-log.log'
+
+ifdown --force wlan0
+echo "wlan0 down" >> ${log}
+
+service dhcpcd stop
+cp /home/pi/provision/etc/dhcpcd.station /etc/dhcpcd.conf
+echo "cp-ed dhcpcd.station to dhcpcd.conf" >> ${log}
+
+echo "sleeping for 4s" >> ${log}
+service dhcpcd force-reload
+service systemctl daemon-reload
+service dhcpcd start
+
+ifup wlan0
+echo "wlan0 up" >> ${log}
+
+
+
+sleep 5
