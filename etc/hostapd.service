@@ -1,0 +1,7 @@
+[Unit]
+Description=hostapd
+[Service]
+Type=simple
+ExecStart=/usr/sbin/hostapd /home/pi/provision/etc/hostapd.ap.conf
+[Install]
+WantedBy=multi-user.target

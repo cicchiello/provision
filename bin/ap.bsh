@@ -20,16 +20,18 @@ echo "wlan0 down" >> ${log}
 echo "before stopping dhcpcd service status: " $(service dhcpcd status) >> ${log}
 service dhcpcd stop
 
+echo "before stopping dnsmasq service status: " $(service dnsmasq status) >> ${log}
+service dnsmasq stop
+
+echo "before stopping hostapd service status: " $(systemctl status hostapd.service) >> ${log}
+systemctl stop hostapd.service
+
 cp /home/pi/provision/etc/dhcpcd.ap.conf /etc/dhcpcd.conf
 echo "cp-ed dhcpcd.ap.conf to dhcpcd.conf" >> ${log}
 
 service dhcpcd force-reload
 service dhcpcd start
 systemctl daemon-reload
-
-#echo "Exiting early"
-#exit -1
-#echo "!?!? Didn't exit early"
 
 cp /home/pi/provision/etc/wpa_supplicant.ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
 echo "cp-ed wpa_supplicant.ap.conf to wpa_supplicant.conf" >> ${log}
@@ -38,18 +40,18 @@ cp /home/pi/provision/etc/interfaces.ap /etc/network/interfaces
 echo "cp-ed interfaces.ap to interfaces" >> ${log}
 
 cp /home/pi/provision/etc/dnsmasq.ap.conf /etc/dnsmasq.conf
+#cp /home/pi/provision/etc/hostapd.ap.conf /etc/hostapd/hostapd.conf
+
+ifup wlan0
+sleep 5
 
 echo "before: dnsmasq service status: " $(service dnsmasq status) >> ${log}
-update-rc.d dnsmasq enable
 service dnsmasq force-reload
 service dnsmasq start
 echo "after: dnsmasq service status: " $(service dnsmasq status) >> ${log}
 
-echo "before: hostapd service status: " $(service hostapd status) >> ${log}
-update-rc.d hostapd enable
-service hostapd force-reload
-service hostapd start
-echo "after: hostapd service status: " $(service hostapd status) >> ${log}
-
+echo "before: hostapd service status: " $(systemctl status hostapd.service) >> ${log}
+systemctl restart hostapd.service
+echo "after: hostapd service status: " $(systemctl status hostapd.service) >> ${log}
 
 

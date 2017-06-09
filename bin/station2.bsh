@@ -11,6 +11,9 @@ ssid="JOE3"
 pswd="abcdef012345"
 log='/tmp/station-log.log'
 
+service dnsmasq stop
+systemctl stop hostapd.service
+
 ifdown --force wlan0
 echo "wlan0 down" >> ${log}
 
@@ -18,20 +21,18 @@ service dhcpcd stop
 cp /home/pi/provision/etc/dhcpcd.station.conf /etc/dhcpcd.conf
 echo "cp-ed dhcpcd.station.conf to dhcpcd.conf" >> ${log}
 
+cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
+
 echo "sleeping for 4s" >> ${log}
 service dhcpcd force-reload
-service systemctl daemon-reload
+systemctl daemon-reload
 service dhcpcd start
 
 cat /home/pi/provision/etc/wpa_supplicant.station.conf | \
     sed "s/<SSID>/${ssid}/g" | \
     sed "s/<PSWD>/${pswd}/g" > /tmp/wpa_supplicant.conf
 cp /tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
-cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
 
 ifup wlan0
 echo "wlan0 up" >> ${log}
 
-
-
-sleep 5
