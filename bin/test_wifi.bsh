@@ -9,13 +9,16 @@ $(sudo /home/pi/provision/bin/station.bsh ${1} ${2} >> /tmp/log.log);
 sleep 4
 
 ifconfig wlan0 >> /tmp/log.log
-ifconfig wlan0 | grep "inet addr" >> /tmp/log.log
 ctest=$((ifconfig wlan0 | grep "inet addr" > /dev/null) && echo "connected")
 echo $ctest >> /tmp/log.log
 if [[ "$ctest" == "connected" ]]
 then
     echo "WiFi connected!" >> /tmp/log.log
-    echo "connected" > /tmp/connected
+    addr=$(ifconfig wlan0 | grep "inet addr");
+    echo $addr >> /tmp/log.log
+    r=$(echo $addr | sed 's/.*addr:\([0-9]*[\.][0-9]*[\.][0-9]*[\.][0-9]*\).*/\1/g')
+    echo $r >> /tmp/log.log
+    echo $r > /tmp/connected
 else
     echo "WiFi not connected" >> /tmp/log.log
     echo "not connected" > /tmp/connected

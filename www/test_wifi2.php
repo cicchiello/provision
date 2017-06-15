@@ -33,16 +33,19 @@
 	 $pass = htmlspecialchars($_GET["pass"]);
 	 $timeout = htmlspecialchars($_GET["timeout"]);
 	 $timeout -= 1;
-	 if ($timeout == 0) {
+	 if ($timeout == 0){
             echo '<meta http-equiv="Refresh" content="2; URL=timeout.php?' . 
+						      'ssid=' . $ssid . '&pass=' . $pass . '">';
+	 } else if ("not connected" == $result) {
+            echo '<meta http-equiv="Refresh" content="2; URL=connect_error.php?' . 
                'ssid=' . $ssid . '&pass=' . $pass . '">';
 	 } else {
 	    if ("not tested yet" == $result) {
                echo '<meta http-equiv="Refresh" content="2; URL=test_wifi2.php?' . 
                   'ssid=' . $ssid . '&pass=' . $pass . '&timeout=' . $timeout . '">';
 	    } else {
-               echo '<meta http-equiv="Refresh" content="2; URL=test_wifi3.php?' .
-		  'ssid=' . $ssid . '&pass=' . $pass . '&timeout=' . $timeout . '">';
+                  echo '<meta http-equiv="Refresh" content="2; URL=connect_success.php?' .
+		     'ssid=' . $ssid . '&pass=' . $pass . '&timeout=' . $timeout . '">';
 	    }
 	 }
 	 ?>
@@ -56,7 +59,7 @@
          <tr>
 	    <td><b>SSID:</b></td>
 	    <td>
-	       <input type="text" name="ssid" 
+	       <input type="text" name="ssid" disabled="disabled" 
                    value="<?php echo htmlspecialchars($_GET["ssid"]);?>"
 		   size="20">
             </td>
@@ -64,7 +67,7 @@
 	 <tr>
 	    <td><b>Password:</b></td>
 	    <td>
-	       <input type="text" name="pass" 
+	       <input type="text" name="pass" disabled="disabled" 
                    value="<?php echo htmlspecialchars($_GET["pass"]);?>"
 		   size="30">
 	    </td>

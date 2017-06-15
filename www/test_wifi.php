@@ -27,7 +27,7 @@
 	 }
       </style>
       
-      <meta http-equiv="Refresh" content="2; URL=test_wifi2.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>&timeout=4">
+      <meta http-equiv="Refresh" content="2; URL=test_wifi2.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>&timeout=10">
       
    </head>
 
@@ -38,7 +38,7 @@
          <tr>
 	    <td><b>SSID:</b></td>
 	    <td>
-	       <input type="text" name="ssid" 
+	       <input type="text" name="ssid" disabled="disabled"
                    value="<?php echo htmlspecialchars($_POST["ssid"]);?>"
 		   size="20">
             </td>
@@ -46,7 +46,7 @@
 	 <tr>
 	    <td><b>Password:</b></td>
 	    <td>
-	       <input type="text" name="pass" 
+	       <input type="text" name="pass" disabled="disabled"
                    value="<?php echo htmlspecialchars($_POST["pass"]);?>"
 		   size="30">
 	    </td>
@@ -58,10 +58,6 @@
       </table>
 
       <div class="loader"></div>
-
-      <h2>
-	 <input type="submit" disabled="disabled" value="Test">
-      </h2>
 
       <?php
 	 $ssid = escapeshellarg($_POST["ssid"]);

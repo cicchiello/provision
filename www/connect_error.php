@@ -53,7 +53,10 @@
 	 </tr>
 	 <tr>
 	    <td><b>Status:</b></td>
-	    <td><mark><b>Error: Connection Timed out...</b></mark></td>
+	    <?php
+	       $result = exec("cat /tmp/connected");
+	       echo '<td><mark><b>Error: ' . $result . '</b></mark></td>'
+	       ?>
 	 </tr>
       </table>
 
