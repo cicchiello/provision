@@ -32,13 +32,25 @@ echo "SSID: ${ssid}" >> ${log}
 echo "PASSWORD: ${pswd}" >> ${log}
 
 echo "before: dnsmasq service status: " $(service dnsmasq status) >> ${log}
-echo "before: hostapd service status: " $(service hostapd status) >> ${log}
 service dnsmasq stop
-update-rc.d dnsmasq disable
-service hostapd stop
-update-rc.d hostapd disable
 echo "after: dnsmasq service status: " $(service dnsmasq status) >> ${log}
-echo "after: hostapd service status: " $(service hostapd status) >> ${log}
+
+echo "before: hostapd service status: " $(systemctl status hostapd.service) >> ${log}
+systemctl stop hostapd.service
+echo "after: hostapd service status: " $(systemctl status hostapd.service) >> ${log}
+
+ifdown --force wlan0
+echo "wlan0 down" >> ${log}
+
+echo "before: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+service dhcpcd stop
+echo "after: dhcpcd service status: " $(service dhcpcd status) >> ${log}
+
+cp /home/pi/provision/etc/dhcpcd.station.conf /etc/dhcpcd.conf
+echo "cp-ed dhcpcd.station.conf to dhcpcd.conf" >> ${log}
+
+cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
+echo "cp-ed interfaces.station to /etc/network/interfaces" >> ${log}
 
 cat /home/pi/provision/etc/wpa_supplicant.station.conf | \
     sed "s/<SSID>/${ssid}/g" | \
@@ -48,24 +60,13 @@ echo "created new wpa_supplicant.conf file" >> ${log}
 cp /tmp/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 echo "cp-ed wpa_supplicant.conf file" >> ${log}
 
-cp /home/pi/provision/etc/interfaces.station /etc/network/interfaces
-echo "cp-ed interfaces.station to interfaces" >> ${log}
-
-ifdown wlan0
-echo "wlan0 down" >> ${log}
-
-service dhcpcd stop
-cp /home/pi/provision/etc/dhcpcd.station /etc/dhcpcd.conf
-echo "cp-ed dhcpcd.station to dhcpcd.conf" >> ${log}
-
-echo "sleeping for 4s" >> ${log}
 service dhcpcd force-reload
-service systemctl daemon-reload
+systemctl daemon-reload
 service dhcpcd start
 
 ifup wlan0
 echo "wlan0 up" >> ${log}
 
-
-
+echo "sleeping for 5s" >> ${log}
 sleep 5
+

@@ -40,7 +40,7 @@ cp /home/pi/provision/etc/interfaces.ap /etc/network/interfaces
 echo "cp-ed interfaces.ap to interfaces" >> ${log}
 
 cp /home/pi/provision/etc/dnsmasq.ap.conf /etc/dnsmasq.conf
-#cp /home/pi/provision/etc/hostapd.ap.conf /etc/hostapd/hostapd.conf
+cp /home/pi/provision/etc/hostapd.ap.conf /etc/hostapd/hostapd.conf
 
 ifup wlan0
 sleep 5

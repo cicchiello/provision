@@ -27,7 +27,6 @@
 	 }
       </style>
       
-      <meta http-equiv="Refresh" content="5; URL=test_wifi2.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>">
    </head>
 
    <body>
@@ -38,7 +37,7 @@
 	    <td><b>SSID:</b></td>
 	    <td>
 	       <input type="text" name="ssid" 
-                   value="<?php echo htmlspecialchars($_POST["ssid"]);?>"
+                   value="<?php echo htmlspecialchars($_GET["ssid"]);?>"
 		   size="20">
             </td>
 	 </tr>
@@ -46,27 +45,19 @@
 	    <td><b>Password:</b></td>
 	    <td>
 	       <input type="text" name="pass" 
-                   value="<?php echo htmlspecialchars($_POST["pass"]);?>"
+                   value="<?php echo htmlspecialchars($_GET["pass"]);?>"
 		   size="30">
 	    </td>
 	 </tr>
 	 <tr>
 	    <td><b>Status:</b></td>
-	    <td>Testing...</td>
+	    <td>Done</td>
 	 </tr>
       </table>
-
-      <div class="loader"></div>
 
       <h2>
 	 <input type="submit" disabled="disabled" value="Test">
       </h2>
 
-      <?php
-	 $ssid = htmlspecialchars($_POST["ssid"]);
-	 $pass = htmlspecialchars($_POST["pass"]);
-	 exec("/home/pi/bin/test_wifi.bsh $ssid $pass 2>&1 > /tmp/test.log");
-	 ?>
-      
    </body>
 </html>

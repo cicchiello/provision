@@ -27,8 +27,6 @@
 	 }
       </style>
       
-      <meta http-equiv="Refresh" content="2; URL=test_wifi2.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>&timeout=4">
-      
    </head>
 
    <body>
@@ -39,7 +37,7 @@
 	    <td><b>SSID:</b></td>
 	    <td>
 	       <input type="text" name="ssid" 
-                   value="<?php echo htmlspecialchars($_POST["ssid"]);?>"
+                   value="<?php echo htmlspecialchars($_GET["ssid"]);?>"
 		   size="20">
             </td>
 	 </tr>
@@ -47,30 +45,19 @@
 	    <td><b>Password:</b></td>
 	    <td>
 	       <input type="text" name="pass" 
-                   value="<?php echo htmlspecialchars($_POST["pass"]);?>"
+                   value="<?php echo htmlspecialchars($_GET["pass"]);?>"
 		   size="30">
 	    </td>
 	 </tr>
 	 <tr>
 	    <td><b>Status:</b></td>
-	    <td>Testing...</td>
+	    <td><mark><b>Error: Connection Timed out...</b></mark></td>
 	 </tr>
       </table>
 
-      <div class="loader"></div>
-
       <h2>
-	 <input type="submit" disabled="disabled" value="Test">
+	 <input type="submit" disabled="disabled" value="Reset">
       </h2>
 
-      <?php
-	 $ssid = escapeshellarg($_POST["ssid"]);
-	 $pass = escapeshellarg($_POST["pass"]);
-	 exec("echo 'not tested yet' > /tmp/connected");
-	 exec("chmod a+w /tmp/connected");
-	 exec("chmod a+r /tmp/connected");
-	 $pid = exec("nohup /home/pi/provision/bin/test_wifi.bsh $ssid $pass > /tmp/wifi_test.log 2>&1 & echo $!");
-	 ?>
-      
    </body>
 </html>
