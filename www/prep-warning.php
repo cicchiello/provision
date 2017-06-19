@@ -27,7 +27,7 @@
 	 }
       </style>
       
-      <meta http-equiv="Refresh" content="2; URL=test_wifi2.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>&timeout=10">
+      <meta http-equiv="Refresh" content="1; URL=Warning.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>">
       
    </head>
 
@@ -61,11 +61,7 @@
 
       <?php
 	 $ssid = escapeshellarg($_POST["ssid"]);
-	 $pass = escapeshellarg($_POST["pass"]);
-	 exec("echo 'not tested yet' > /tmp/connected");
-	 exec("chmod a+w /tmp/connected");
-	 exec("chmod a+r /tmp/connected");
-	 $pid = exec("nohup /home/pi/provision/bin/test_wifi.bsh $ssid $pass > /tmp/wifi_test.log 2>&1 & echo $!");
+	 $pid = exec("/home/pi/provision/bin/prep-pages.bsh $ssid > /tmp/prep-warning.log 2>&1");
 	 ?>
       
    </body>

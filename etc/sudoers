@@ -13,7 +13,7 @@ Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/b
 # Host alias specification
 
 # User alias specification
-www-data ALL = NOPASSWD: /home/pi/provision/bin/station.bsh
+www-data ALL = NOPASSWD: /home/pi/provision/bin/station.bsh, /home/pi/provision/bin/prep-pages.bsh
 
 # Cmnd alias specification
 

@@ -1,0 +1,127 @@
+#!/bin/bash
+
+if [ "${1}" == "" ]
+then
+    echo 'Usage: ./prep-pages.bsh <ssid>'
+    exit
+fi
+ssid=${1}
+user=`whoami`
+
+
+log='/tmp/prep-pages.log'
+ap=$(grep 192 ../etc/hostapd.ap.conf | awk -F= '{print $2}')
+ip=$(grep 192 ../etc/interfaces.ap | grep address | awk '{print $2}')
+ip="192.168.1.93"
+time=$(date +%s)
+
+echo "in prep-pages" > ${log}
+echo "whoami: ${user}" >> ${log}
+echo "Using SSID: ${ssid}" >> ${log}
+echo "ap: ${ap}" >> ${log}
+echo "time: ${time}" >> ${log}
+
+
+#
+# Place an initial record in the db for this provisioning attempt -- so if
+# the user gets there somehow before or without successful completion, it'll be
+# clear that the attempt didn't get far enough to put meaningful data there
+#
+dbUrl="https://jfcenterprises.cloudant.com/provision"
+contentType="-H Content-Type:application/json"
+auth="-u icealleentsallsiondislos:170adfb6874e9afdbdeb2956f36b71c0e8b49b74"
+
+echo "auth: ${auth}" >> ${log}
+echo "contentType: ${contentType}" >> ${log}
+echo "dbUrl: ${dbUrl}" >> ${log}
+r=$(curl -X POST ${auth} ${contentType} ${dbUrl} -d '{"_id":"'${time}'","status":"not tried yet"}' 2>&1 >> ${log})
+echo "r: ${r}" >> ${log}
+
+
+
+#
+# Prepare 3 web page files for the sequence:
+#     Warning.php
+#        -> cancel: go back to beginning
+#        -> ok: go to Testing.php
+#
+#     Testing.php
+#        (background): station.bsh
+#             if success:
+#                  update db ${time} entry with results
+#                  prepare Failed.php to indicate success
+#             else:
+#                  prepare Failed.php to indicate failed
+#                     -> ok: go back to beginning
+#        -> 10s spinner, then: go to Done.php
+#
+#     Done.php
+#        -> Success: go to db ${time} entry
+#        -> Failure: go back to beginning
+#
+
+onSuccess="https\:\/\/jfcenterprises.cloudant.com\/provision\/${time}"
+onFailure="${ip}\/provision\/Failed.php?t=${time}" # using time to force non-cache
+echo "onSuccess: ${onSuccess}" >> ${log}
+echo "onFailure: ${onFailure}" >> ${log}
+echo cat /home/pi/provision/www/Warning.htm >> ${log}
+echo sed "s/|SSID|/${ssid}/g" >> ${log}
+#touch /tmp/Warning.touch
+
+cancelbutton='<form action="\/provision\/provision.php"><input type="image" src="cancel2.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
+okbutton='<form action="\/provision\/Testing.php"><input type="image" src="ok.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
+buttons="<center><table><tr><td>${cancelbutton}<\/td><td><\/td><td>${okbutton}<\/td><\/tr><\/table><\/center>"
+
+spinnerStyle="\
+         body{font-family: Arial} \
+         .loader { \
+	    border: 8px solid #f3f3f3; \
+	    border-radius: 50%; \
+	    border-top: 8px solid #3498db; \
+            margin: auto; \
+	    width: 40px; \
+	    height: 40px; \
+	    -webkit-animation: spin 2s linear infinite; \
+	    animation: spin 2s linear infinite; \
+	 } \
+	 @-webkit-keyframes spin { \
+	    0% { -webkit-transform: rotate(0deg); } \
+	    100% { -webkit-transform: rotate(360deg); } \
+	 } \
+	 @keyframes spin { \
+	    0% { transform: rotate(0deg); } \
+	    100% { transform: rotate(360deg); } \
+	 }"
+spinnerDiv='<div class="loader"><\/div>'
+refresher='<meta http-equiv="Refresh" content="10; URL=DoneTest.php">'
+
+
+cat /home/pi/provision/www/Warning.htm |
+    sed "s/|AP|/${ap}/g" | \
+    sed "s/|BUTTONS|/${buttons}/g" | \
+    sed "s/|SSID|/${ssid}/g" \
+    > /home/pi/provision/www/Warning.php
+
+cat /home/pi/provision/www/Testing.htm |
+    sed "s/|AP|/${ap}/g" | \
+    sed "s/https\:\/\/success-url\//${onSuccess}/g" | \
+    sed "s/failed-url\//${onFailure}/g" | \
+    sed "s/|SSID|/${ssid}/g" | \
+    sed "s/<\/body>/${spinnerDiv}<\/body>/g" | \
+    sed "s/<\/style>/<\/style>${refresher}/g" | \
+    sed "s/<style>/<style>${spinnerStyle}/g" \
+    > /home/pi/provision/www/Testing.php
+
+cat /home/pi/provision/www/DoneTest.htm |
+    sed "s/|AP|/${ap}/g" | \
+    sed "s/https\:\/\/success-url\//${onSuccess}/g" | \
+    sed "s/failed-url\//${onFailure}/g" \
+    > /home/pi/provision/www/DoneTest.php
+
+okbutton='<form action="\/provision\/provision.php"><input type="image" src="ok.jpg" alt="Submit" width="62" height="62"><\/form>'
+buttons="<center><table><tr><td>${okbutton}<\/td><\/tr><\/table><\/center>"
+
+cat /home/pi/provision/www/Failed.htm | \
+    sed "s/|BUTTONS|/${buttons}/g" | \
+    sed "s/|SSID|/${ssid}/g" \
+    > /home/pi/provision/www/Failed.php

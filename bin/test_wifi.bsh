@@ -6,7 +6,7 @@ echo "PASSWORD: ${2}" >> /tmp/log.log
 
 $(sudo /home/pi/provision/bin/station.bsh ${1} ${2} >> /tmp/log.log);
 
-sleep 4
+sleep 1
 
 ifconfig wlan0 >> /tmp/log.log
 ctest=$((ifconfig wlan0 | grep "inet addr" > /dev/null) && echo "connected")

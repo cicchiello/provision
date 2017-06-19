@@ -6,10 +6,9 @@
    </head>
 
    <body>
-      <form method="post" action="/provision/test_wifi.php">
+      <form method="post" action="/provision/prep-warning.php">
       <input type="hidden" name="save" value="0">
-
-
+	
       <h2>WiFi Station Settings</h2>
       <table border="0">
          <tr>
@@ -28,9 +27,9 @@
 
 
       <h2>
-	 <input type="submit" value="Test">
+	<input type="submit" value="Test">
       </h2>
-	 
+
    </body>
 
 </html>
