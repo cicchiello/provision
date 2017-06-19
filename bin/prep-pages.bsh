@@ -68,7 +68,7 @@ echo cat /home/pi/provision/www/Warning.htm >> ${log}
 echo sed "s/|SSID|/${ssid}/g" >> ${log}
 #touch /tmp/Warning.touch
 
-cancelbutton='<form action="\/provision\/provision.php"><input type="image" src="cancel2.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
+cancelbutton='<form action="\/provision\/provision.php"><input type="image" src="cancel.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
 okbutton='<form action="\/provision\/Testing.php"><input type="image" src="ok.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
 buttons="<center><table><tr><td>${cancelbutton}<\/td><td><\/td><td>${okbutton}<\/td><\/tr><\/table><\/center>"
 
