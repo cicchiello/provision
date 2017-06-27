@@ -9,7 +9,7 @@ fi
 
 ssid="JOE3"
 pswd="abcdef012345"
-log='/tmp/station-log.log'
+log='/tmp/station2-log.log'
 
 service dnsmasq stop
 systemctl stop hostapd.service

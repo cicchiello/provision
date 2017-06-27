@@ -27,7 +27,7 @@
 	 }
       </style>
       
-      <meta http-equiv="Refresh" content="1; URL=Warning.php?ssid=<?php echo htmlspecialchars($_POST["ssid"]);?>&pass=<?php echo htmlspecialchars($_POST["pass"]);?>">
+      <meta http-equiv="Refresh" content="1; URL=Warning.php?ssid=<?php echo htmlspecialchars($_POST['ssid']);?>&pswd=<?php echo htmlspecialchars($_POST['pswd']);?>">
       
    </head>
 
@@ -39,15 +39,15 @@
 	    <td><b>SSID:</b></td>
 	    <td>
 	       <input type="text" name="ssid" disabled="disabled"
-                   value="<?php echo htmlspecialchars($_POST["ssid"]);?>"
+                   value="<?php echo htmlspecialchars($_POST['ssid']);?>"
 		   size="20">
             </td>
 	 </tr>
 	 <tr>
 	    <td><b>Password:</b></td>
 	    <td>
-	       <input type="text" name="pass" disabled="disabled"
-                   value="<?php echo htmlspecialchars($_POST["pass"]);?>"
+	       <input type="text" name="pswd" disabled="disabled"
+                   value="<?php echo htmlspecialchars($_POST['pswd']);?>"
 		   size="30">
 	    </td>
 	 </tr>
@@ -60,8 +60,9 @@
       <div class="loader"></div>
 
       <?php
-	 $ssid = escapeshellarg($_POST["ssid"]);
-	 $pid = exec("/home/pi/provision/bin/prep-pages.bsh $ssid > /tmp/prep-warning.log 2>&1");
+	 $ssid = escapeshellarg($_POST['ssid']);
+	 $pswd = escapeshellarg($_POST['pswd']);
+	 $pid = exec("sudo /home/pi/provision/bin/prep-pages.bsh $ssid $pswd");
 	 ?>
       
    </body>

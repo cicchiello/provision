@@ -1,12 +1,28 @@
 #!/bin/bash
 
+touch /tmp/prep-pages.semaphore
+
+user=`whoami`
+if [ "$user" != "root" ]
+then
+    echo 'Sorry, this shell script must be run as root; perhaps you meant to use "sudo"?'
+    exit
+fi
+
+
 if [ "${1}" == "" ]
 then
-    echo 'Usage: ./prep-pages.bsh <ssid>'
+    echo 'Usage: ./prep-pages.bsh <ssid> <pswd>'
     exit
 fi
 ssid=${1}
-user=`whoami`
+
+if [ "${2}" == "" ]
+then
+    echo 'Usage: ./prep-pages.bsh <ssid> <pswd>'
+    exit
+fi
+pswd=${2}
 
 
 log='/tmp/prep-pages.log'
@@ -18,8 +34,9 @@ time=$(date +%s)
 echo "in prep-pages" > ${log}
 echo "whoami: ${user}" >> ${log}
 echo "Using SSID: ${ssid}" >> ${log}
+echo "Using PSWD: ${pswd}" >> ${log}
 echo "ap: ${ap}" >> ${log}
-echo "time: ${time}" >> ${log}
+echo "time: $(date)" >> ${log}
 
 
 #
@@ -64,13 +81,12 @@ onSuccess="https\:\/\/jfcenterprises.cloudant.com\/provision\/${time}"
 onFailure="${ip}\/provision\/Failed.php?t=${time}" # using time to force non-cache
 echo "onSuccess: ${onSuccess}" >> ${log}
 echo "onFailure: ${onFailure}" >> ${log}
-echo cat /home/pi/provision/www/Warning.htm >> ${log}
-echo sed "s/|SSID|/${ssid}/g" >> ${log}
-#touch /tmp/Warning.touch
 
 cancelbutton='<form action="\/provision\/provision.php"><input type="image" src="cancel.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
 okbutton='<form action="\/provision\/Testing.php"><input type="image" src="ok.jpg" alt="Submit" width="62" height="62" hspace="20"><\/form>'
 buttons="<center><table><tr><td>${cancelbutton}<\/td><td><\/td><td>${okbutton}<\/td><\/tr><\/table><\/center>"
+oldaction="<?php exec('sudo \/home\/pi\/provision\/bin\/station.bsh ${ssid} ${pswd} > \/tmp\/station-invoke.log 2>\&1'); ?>"
+action='<?php exec("sudo \/home\/pi\/provision\/bin\/station.bsh '${ssid}' '${pswd}'"); ?>'
 
 spinnerStyle="\
          body{font-family: Arial} \
@@ -107,7 +123,7 @@ cat /home/pi/provision/www/Testing.htm |
     sed "s/https\:\/\/success-url\//${onSuccess}/g" | \
     sed "s/failed-url\//${onFailure}/g" | \
     sed "s/|SSID|/${ssid}/g" | \
-    sed "s/<\/body>/${spinnerDiv}<\/body>/g" | \
+    sed "s/<\/body>/${spinnerDiv}${action}<\/body>/g" | \
     sed "s/<\/style>/<\/style>${refresher}/g" | \
     sed "s/<style>/<style>${spinnerStyle}/g" \
     > /home/pi/provision/www/Testing.php
@@ -125,3 +141,6 @@ cat /home/pi/provision/www/Failed.htm | \
     sed "s/|BUTTONS|/${buttons}/g" | \
     sed "s/|SSID|/${ssid}/g" \
     > /home/pi/provision/www/Failed.php
+
+echo "time: "$(date +%s) >> ${log}
+

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+touch /tmp/station.semaphore1
+
 if [ "${1}" == "" ]
 then
     echo 'Usage: ./station.bsh <ssid> <pswd>'
@@ -7,12 +9,16 @@ then
 fi
 ssid=${1}
 
+touch /tmp/station.semaphore2
+
 if [ "${2}" == "" ]
 then
     echo 'Usage: ./station.bsh <ssid> <pswd>'
     exit
 fi
 pswd=${2}
+
+touch /tmp/station.semaphore3
 
 log='/tmp/station-log.log'
 user=`whoami`
@@ -24,12 +30,18 @@ fi
 
 #echo "Seems you're allowed in!"
 echo ""
-echo "Using SSID: ${ssid}"
-echo "Using PSWD: ${pswd}"
 
-echo `whoami` > ${log}
+touch /tmp/station.semaphore4
+
+sleep 5
+
+touch /tmp/station.semaphore5
+
+time=$(date)
+echo "whoami: ${user}" > ${log}
 echo "SSID: ${ssid}" >> ${log}
 echo "PASSWORD: ${pswd}" >> ${log}
+echo "time: ${time}" >> ${log}
 
 echo "before: dnsmasq service status: " $(service dnsmasq status) >> ${log}
 service dnsmasq stop
@@ -67,6 +79,8 @@ service dhcpcd start
 ifup wlan0
 echo "wlan0 up" >> ${log}
 
-echo "sleeping for 5s" >> ${log}
-sleep 5
+#echo "sleeping for 10s" >> ${log}
+#sleep 10
 
+#ping -c 4 yahoo.com 2&>1 >> ${log}
+echo "Done" >> ${log}
